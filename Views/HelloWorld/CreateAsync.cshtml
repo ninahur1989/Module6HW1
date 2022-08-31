@@ -1,0 +1,23 @@
+﻿@using Models
+@model IEnumerable< CreateUserParameters>
+@{
+    ViewData["Title"] = "List";
+}
+
+<h1>List</h1>
+@{
+    foreach(var a in Model)
+    {
+        <div>
+        job
+            @a.Job
+        </div>
+        <div>
+        name
+            @a.Name
+        </div>
+    }
+}
+<a>dasds</a>
+<a>drill</a>
+

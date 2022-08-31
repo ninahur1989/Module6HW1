@@ -1,5 +1,7 @@
+using User.api.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -28,10 +30,9 @@ namespace User.api
         {
 
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "User.api", Version = "v1" });
-            });
+            services.AddMvc();
+
+            services.AddSingleton<HelloWorldController>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,8 +41,6 @@ namespace User.api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "User.api v1"));
             }
 
             app.UseHttpsRedirection();
@@ -53,6 +52,38 @@ namespace User.api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.MapWhen(context => {
+
+                return context.Request.Query.ContainsKey("id") &&
+                        context.Request.Query["id"] == "5";
+            }, HandleId);
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapGet("/2", async context =>
+                {
+                    await context.Response.WriteAsync("2");
+                });
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                // обработка запроса - получаем констекст запроса в виде объекта context
+                endpoints.MapGet("/", async context =>
+                {
+                    // отправка ответа в виде строки "Hello World!"
+                    await context.Response.WriteAsync("Hello world");
+                });
+            });
+        }
+
+        private static void HandleId(IApplicationBuilder app)
+        {
+            app.Run(async context =>
+            {
+                await context.Response.WriteAsync("id is equal to 5");
             });
         }
     }
